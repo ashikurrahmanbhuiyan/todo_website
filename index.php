@@ -1,22 +1,39 @@
 <?php
-    //connecting to the database
+    //connect to database
+    include "connection.php";
     $insert = 0;
-    $conn = mysqli_connect("localhost","root","","notes");
-    if(!$conn){
-        die("Sorry we failed to connect: ".mysqli_connect_error());
-    }
+    //insert an todo list
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $title = $_POST['title'];
         $descion = $_POST['description'];
         $sql1 = "INSERT INTO `note` (`title`, `description`, `tstamp`)
         VALUES ('$title', '$descion', current_timestamp())";
         $result1 = mysqli_query($conn, $sql1) or die(mysqli_error($conn));
-        if ($result1) {
-          $insert = 1;
-        }
+        if ($result1) $insert = 1;
     }
+
+
+    //change the view
     $choice = 0;
     $choice = $_GET['page'];
+
+    //delete an todo list
+    $del = $_GET['del'];
+    if($del){
+      $sql2 = "DELETE from note where sno = '$del';";
+      $result2 = mysqli_query($conn, $sql2);
+    }
+
+    //update an to list
+    $update = $_GET['update'];
+    if($update){
+      $sql3 = "SELECT * from note where sno = '$update';";
+      $row1 = mysqli_fetch_assoc(mysqli_query($conn, $sql3));
+      $t1 = $row1['title'];
+      $d1 = $row1['description'];
+      $sql5 = "UPDATE note SET title = '$title', description = '$descion' where sno = '$update';";
+      $result3 = mysqli_query($conn, $sql3);
+    }
 ?>
 
 
@@ -61,16 +78,37 @@
   </div>
 </nav>
 <?php
-if ($insert == 1) {
+if ($insert) {
     echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
   <strong>Success!</strong> Your note has been inserted.
   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div> ';
   }
  ?>
-
-<div class="container my-4">
-    <form action = "<?php $_SERVER['PHP_SELF']; ?>" method = "POST">
+<?php
+if($update){
+  echo '<div class="container my-4">
+    <form action = "'. $_SERVER['PHP_SELF'] .'" method = "POST">
+  <div class="mb-3">
+    <h2>Add a Note</h2>
+    <label for="title" class="form-label">Note Title</label>
+    <input type="Text" class="form-control" id="title" name ="title" aria-describedby="emailHelp" value = "'.$t1.'">
+  </div>
+  <div class="mb-3">
+  <label for="description" class="form-label">Note Description</label>
+  <textarea type = "Text" class="form-control" id="description" name = "description" rows="3">'.$d1.'</textarea>
+</div>
+  <button type="submit" class="btn btn-primary">Update</button>
+</form>
+</div>
+<div class="d-flex flex-row-reverse">
+    <a href = "index.php?page=1"><button type="button" name="card" class="btn btn-primary">Card</button></a>
+    <a href = "index.php?page=0"><button type="button" name="list" class="btn btn-primary me-2">List</button></a>
+</div>';
+}
+else{
+echo '<div class="container my-4">
+    <form action = "'. $_SERVER['PHP_SELF'] .'" method = "POST">
   <div class="mb-3">
     <h2>Add a Note</h2>
     <label for="title" class="form-label">Note Title</label>
@@ -83,11 +121,12 @@ if ($insert == 1) {
   <button type="submit" class="btn btn-primary">Add Note</button>
 </form>
 </div>
-<div class="d-flex flex-row-reverse" action = "<?php $_SERVER['PHP_SELF']; ?>" method = "POST">
-    <button type="button" name="card" class="btn btn-primary"><a href = "index.php?page=1">Card</a></button>
-    <button type="button" name="list" class="btn btn-primary me-2"><a href = "index.php?page=0">List</a></button>
-</div>
-<?php
+<div class="d-flex flex-row-reverse">
+    <a href = "index.php?page=1"><button type="button" name="card" class="btn btn-primary">Card</button></a>
+    <a href = "index.php?page=0"><button type="button" name="list" class="btn btn-primary me-2">List</button></a>
+</div>';
+}
+
     $sql = "SELECT * FROM note ORDER BY sno DESC";
     $result = mysqli_query($conn, $sql);
 if($choice == 0){
@@ -107,7 +146,10 @@ echo '<table class="table" id = "myTable">
       <th scope="row">'.$row['sno'].'</th>
       <td>'.$row['title'].'</td>
       <td>'.$row['description'].'</td>
-      <td>@mdo</td>
+      <td>
+      <a href = "index.php?page=0&del='.$row['sno'].'"><button type="button" class="btn btn-danger">Delete </button></a>
+      <a href = "index.php?page=1&update='.$row1['sno'].'"><button type="button" class="btn btn-primary">Update</button></a>
+      </td>
     </tr>';
     }
 
@@ -127,7 +169,10 @@ if($choice == 1){
         <h5 class="card-title">'.$row1['title'].'</h5>
         <p class="card-text">'.$row1['description'].'</p>
         <p>'.$row1['tstamp'].'</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+        <p>
+          <a href="index.php?page=1&del='.$row1['sno'].'"><button type="button" class="btn btn-danger">Delete </button></a>
+          <a href="index.php?page=1&update='.$row1['sno'].'"><button type="button" class="btn btn-primary">Update</button></a>
+        </p>
         </div>
         </div>';
     }
@@ -140,9 +185,7 @@ if($choice == 1){
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
-          $(document).ready(function(){
-            $('#myTable').DataTable();
-          });
+          new DataTable('#myTable');
     </script>
   </body>
 </html>
