@@ -1,5 +1,6 @@
 <?php
     //connecting to the database
+    $insert = 0;
     $conn = mysqli_connect("localhost","root","","notes");
     if(!$conn){
         die("Sorry we failed to connect: ".mysqli_connect_error());
@@ -10,6 +11,9 @@
         $sql1 = "INSERT INTO `note` (`title`, `description`, `tstamp`)
         VALUES ('$title', '$descion', current_timestamp())";
         $result1 = mysqli_query($conn, $sql1) or die(mysqli_error($conn));
+        if ($result1) {
+          $insert = 1;
+        }
     }
     $choice = 0;
     $choice = $_GET['page'];
@@ -24,6 +28,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TO DO App</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+    
   </head>
   <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme = "dark">
@@ -52,6 +60,15 @@
     </div>
   </div>
 </nav>
+<?php
+if ($insert == 1) {
+    echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <strong>Success!</strong> Your note has been inserted.
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div> ';
+  }
+ ?>
+
 <div class="container my-4">
     <form action = "<?php $_SERVER['PHP_SELF']; ?>" method = "POST">
   <div class="mb-3">
@@ -75,7 +92,7 @@
     $result = mysqli_query($conn, $sql);
 if($choice == 0){
 echo '<div class="container my-4">';
-echo '<table class="table">
+echo '<table class="table" id = "myTable">
   <thead>
     <tr>
       <th scope="col">S.No</th>
@@ -119,6 +136,13 @@ if($choice == 1){
 <?php
 }
 ?>
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+          $(document).ready(function(){
+            $('#myTable').DataTable();
+          });
+    </script>
   </body>
 </html>
