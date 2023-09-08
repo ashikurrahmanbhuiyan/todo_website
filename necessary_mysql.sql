@@ -5,5 +5,5 @@ create table note(
     title varchar(255),
     description Text,
     tstamp datetime default current_timestamp,
-    primary key(sno),
+    primary key(sno)
 );

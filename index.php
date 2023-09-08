@@ -40,7 +40,7 @@
         <li class="nav-item">
           <a class="nav-link" href="#">About</a>
         </li>
-        
+
         <li class="nav-item">
           <a class="nav-link " aria-disabled="true">Contact Us</a>
         </li>
@@ -93,7 +93,7 @@ echo '<table class="table">
       <td>@mdo</td>
     </tr>';
     }
-    
+
  echo' </tbody>
 </table>';
 }
